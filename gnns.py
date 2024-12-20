@@ -23,7 +23,52 @@ class FirstGNN(torch.nn.Module):
         x = self.lin(x)
         
         return x
+
+
     
+  
+class SecondGNN(torch.nn.Module):
+    def __init__(self, in_channels=-1, hidden_channels=64, out_channels=2):
+        super(SecondGNN, self).__init__()
+        self.conv1 = GCNConv(in_channels, hidden_channels)
+        self.conv2 = GCNConv(hidden_channels, hidden_channels)
+        self.conv3 = GCNConv(hidden_channels, hidden_channels)
+        self.lin = Linear(hidden_channels, out_channels)
+
+    def forward(self, x, edge_index, batch):
+        x = self.conv1(x, edge_index)
+        x = x.relu()
+        x = self.conv2(x, edge_index)
+        x = x.relu()
+        x = self.conv3(x, edge_index)
+        x = x.relu()
+        
+        x = global_mean_pool(x, batch)  
+
+        x = self.lin(x)
+        
+        return x
+class ThirdGNN(torch.nn.Module):
+    def __init__(self, in_channels=-1, hidden_channels1=64,hidden_channels2=124,hidden_channels3=64, out_channels=2):
+        super(ThirdGNN, self).__init__()
+        self.conv1 = GCNConv(in_channels, hidden_channels1)
+        self.conv2 = GCNConv(hidden_channels1, hidden_channels2)
+        self.conv3 = GCNConv(hidden_channels2, hidden_channels3)
+        self.lin = Linear(hidden_channels3, out_channels)
+
+    def forward(self, x, edge_index, batch):
+        x = self.conv1(x, edge_index)
+        x = x.relu()
+        x = self.conv2(x, edge_index)
+        x = x.relu()
+        x = self.conv3(x, edge_index)
+        x = x.relu()
+        
+        x = global_mean_pool(x, batch)  
+
+        x = self.lin(x)
+        
+        return x  
 
 def test_model(model, loader):
     model.eval()
@@ -63,4 +108,3 @@ def learn_and_perf(model_to_test, train_loader, test_loader=None, nb_epochs=1000
         losses.append(cur_loss)
 
     return accs_train, accs_test, losses
-    
